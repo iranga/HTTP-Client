@@ -1,0 +1,45 @@
+
+public class BillService {
+	public String getUsage() throws Exception {
+
+        URIBuilder loginURI = new URIBuilder();
+        builder.setScheme("https").setHost("cloudmgt.cloud.wso2.com").setPath("/cloudmgt/site/blocks/user/authenticate/ajax/login.jag")
+                .setParameter("action", "login")
+                .setParameter("userName", "stcwso2@gmail.com@stc1384")
+                .setParameter("password", "password123#@!");
+
+
+        RequestConfig globalConfig = RequestConfig.custom().build();
+
+        HttpClientContext context = HttpClientContext.create();
+        CookieStore cookieStore = new BasicCookieStore();
+        context.setCookieStore(cookieStore);
+        //CookieStore httpCookieStore = new BasicCookieStore();
+        CloseableHttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(globalConfig).setDefaultCookieStore(cookieStore).build();
+        HttpPost httpPost = new HttpPost(builder.build());
+        CloseableHttpResponse loginResponse = httpClient.execute(httpPost, context);
+        System.out.println(loginResponse.getStatusLine());
+        System.out.println(context.getCookieStore().getCookies());
+       
+
+        URIBuilder builder1 = new URIBuilder();
+        builder1.setScheme("https").setHost("cloudmgt.cloud.wso2.com").setPath("/cloudmgt/site/blocks/billing/usage/get/ajax/get.jag")
+                .setParameter("action", "getTenantUsage")
+                .setParameter("fromDate", "2017-01-22")
+                .setParameter("toDate", "2017-01-31");
+
+        HttpPost httpPost1 = new HttpPost(builder1.build());
+        HttpResponse billResponse = httpClient.execute(httpPost1, context);
+        System.out.println(billResponse.getStatusLine());
+        InputStreamReader is = new InputStreamReader(billResponse.getEntity().getContent());
+        BufferedReader rd = new BufferedReader(is);
+        String line = "";
+        StringBuilder sb = new StringBuilder();
+        while ((line = rd.readLine()) != null) {
+            sb.append(line + "\n");
+            System.out.println(line);
+            
+        }
+        System.out.println(context.getCookieStore().getCookies());
+        return sb.toString();
+}
